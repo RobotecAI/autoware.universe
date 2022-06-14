@@ -150,6 +150,7 @@ void ObstaclePointCloudBasedValidator::onObjectsAndObstaclePointCloud(
   if (!transformDetectedObjects(
         *input_objects, input_obstacle_pointcloud->header.frame_id, tf_buffer_,
         transformed_objects)) {
+    RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 5000, "Cannot transform objects to pointcloud frame.");
     // objects_pub_->publish(*input_objects);
     return;
   }
@@ -158,8 +159,8 @@ void ObstaclePointCloudBasedValidator::onObjectsAndObstaclePointCloud(
   pcl::PointCloud<pcl::PointXY>::Ptr obstacle_pointcloud(new pcl::PointCloud<pcl::PointXY>);
   pcl::fromROSMsg(*input_obstacle_pointcloud, *obstacle_pointcloud);
   if (obstacle_pointcloud->empty()) {
-    RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 5, "cannot receieve pointcloud");
-    // objects_pub_->publish(*input_objects);
+    RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 5000, "Received empty pointcloud. Publishing input objects.");
+    objects_pub_->publish(*input_objects);
     return;
   }
 
